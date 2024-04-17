@@ -1,8 +1,11 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
 module Chatterbot where
 import Utilities
 import System.Random
 import Data.Char
 import Data.List
+import Data.Maybe (Maybe(Nothing))
 
 chatterbot :: String -> [(String, [String])] -> IO ()
 chatterbot botName botRules = do
@@ -107,25 +110,36 @@ reductionsApply _ = id
 -- Replaces a wildcard in a list with the list given as the third argument
 substitute :: Eq a => a -> [a] -> [a] -> [a]
 -- x wildcard, y list to change, z string to insert,
-substitute x y z = 
-  reverse (drop (length z) (reverse (concat( map  (\elem -> (elem ++ z))  (splitOn x y)))))
--- substitute x y z = map (\character -> if character == x then head z else character) y
+substitute x y z = concat (map (\char -> if char /= x then [char] else z) y)
 
 
 -- Tries to match two lists. If they match, the result consists of the sublist
 -- bound to the wildcard in the pattern list.
+-- wildcard, pattern, series of things
 match :: Eq a => a -> [a] -> [a] -> Maybe [a]
-match _ _ _ = Nothing
-{- TO BE WRITTEN -}
+match _ [] [] = Just []
+match _ [] (x:xs) = Nothing
+match _ (x:xs) [] = Nothing
+match wildcard (p:ps) (s:ss) =
+  (if wildcard /= p then
+    (if (p == s && match wildcard ps ss)
+      then (match wildcard ps ss) 
+      else (Nothing)
+    )
+        else ())
 
 
 -- Helper function to match
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
-singleWildcardMatch (wc:ps) (x:xs) = Nothing
-{- TO BE WRITTEN -}
-longerWildcardMatch (wc:ps) (x:xs) = Nothing
-{- TO BE WRITTEN -}
+singleWildcardMatch (wc:ps) (x:xs) = (if (match wc ps xs) /= Nothing then Just x else Nothing )    
 
+
+-- longerWildcardMatch (wc:ps) (x:xs) = Nothing
+longerWildcardMatch (wc:ps) (x:xs) = 
+  (if (singleWildcardMatch (wc:ps) xs) /= Nothing 
+    then Just [x, (head xs)]   
+    else Just ( x:(longerWildcardMatch (wc:ps) xs)))
+      
 
 
 -- Test cases --------------------
