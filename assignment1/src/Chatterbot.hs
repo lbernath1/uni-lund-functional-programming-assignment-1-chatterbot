@@ -5,7 +5,7 @@ import Utilities
 import System.Random
 import Data.Char
 import Data.List
-import Data.Maybe (Maybe(Nothing))
+import Data.Maybe (Maybe(Nothing), fromJust)
 
 chatterbot :: String -> [(String, [String])] -> IO ()
 chatterbot botName botRules = do
@@ -122,23 +122,27 @@ match _ [] (x:xs) = Nothing
 match _ (x:xs) [] = Nothing
 match wildcard (p:ps) (s:ss) =
   (if wildcard /= p then
-    (if (p == s && match wildcard ps ss)
+    (if (p == s && (match wildcard ps ss) /= Nothing)
       then (match wildcard ps ss) 
       else (Nothing)
     )
-        else ())
+        else (orElse (singleWildcardMatch (p:ps) (s:ss)) (longerWildcardMatch (p:ps) (s:ss))))
 
 
 -- Helper function to match
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
-singleWildcardMatch (wc:ps) (x:xs) = (if (match wc ps xs) /= Nothing then Just x else Nothing )    
+singleWildcardMatch (wc:ps) (x:xs) = (if (match wc ps xs) /= Nothing then Just [x] else Nothing )    
 
 
 -- longerWildcardMatch (wc:ps) (x:xs) = Nothing
 longerWildcardMatch (wc:ps) (x:xs) = 
+  (if match wc (wc:ps) xs == Nothing || singleWildcardMatch (wc:ps) (x:xs) /= Nothing 
+    then Nothing
+  else 
   (if (singleWildcardMatch (wc:ps) xs) /= Nothing 
     then Just [x, (head xs)]   
-    else Just ( x:(longerWildcardMatch (wc:ps) xs)))
+   else Just ( x:(fromJust (longerWildcardMatch (wc:ps) xs))))
+  )
       
 
 
@@ -162,8 +166,9 @@ matchCheck = matchTest == Just testSubstitutions
 
 -- Applying a single pattern
 transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
-transformationApply _ _ _ _ = Nothing
-{- TO BE WRITTEN -}
+
+transformationApply wc f text (s1, s2) = if a /= Nothing then Just (substitute wc s2 (f (fromJust a))) else Nothing
+  where a = match wc s1 text
 
 
 -- Applying a list of patterns until one succeeds
