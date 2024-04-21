@@ -34,12 +34,17 @@ stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 stateOfMind _ = return id
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
-{- TO BE WRITTEN -}
-rulesApply _ = id
+
+--Input for transformationsApply: wc f (first:listOfTuples) text
+rulesApply phrasePairs phrase = fromJust (orElse (transformationsApply "*" reflect phrasePairs phrase) (Just []))
 
 reflect :: Phrase -> Phrase
-{- TO BE WRITTEN -}
-reflect = id
+
+reflect phrase = map (\ word -> fromJust (orElse (keyToValue word reflections) (Just word))) phrase
+
+keyToValue :: Eq a => a -> [(a, b)] -> Maybe b
+keyToValue key [] = Nothing
+keyToValue key (pair:listOfPairs) = if (fst pair) == key then Just (snd pair) else keyToValue key listOfPairs
 
 reflections =
   [ ("am",     "are"),
@@ -167,13 +172,14 @@ matchCheck = matchTest == Just testSubstitutions
 -- Applying a single pattern
 transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
 
-transformationApply wc f text (s1, s2) = if a /= Nothing then Just (substitute wc s2 (f (fromJust a))) else Nothing
-  where a = match wc s1 text
+transformationApply wc f text (s1, s2) = if  (match wc s1 text) /= Nothing then Just (substitute wc s2 (f (fromJust  (match wc s1 text)))) else Nothing
+
 
 
 -- Applying a list of patterns until one succeeds
 transformationsApply :: Eq a => a -> ([a] -> [a]) -> [([a], [a])] -> [a] -> Maybe [a]
-transformationsApply _ _ _ _ = Nothing
-{- TO BE WRITTEN -}
+-- wc, function, listOfTuples, text 
+transformationsApply _ _ [] _ = Nothing
+transformationsApply wc f (first:listOfTuples) text = orElse (transformationApply wc f text first) (transformationsApply wc f listOfTuples text)
 
 
