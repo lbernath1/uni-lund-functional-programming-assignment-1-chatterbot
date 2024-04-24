@@ -31,10 +31,15 @@ type BotBrain = [(Phrase, [Phrase])]
 
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 {- TO BE WRITTEN -}
-stateOfMind _ = return id
+--stateOfMind _ = return id
+
+stateOfMind input = rulesApply (map (\ tuple -> ((fst tuple), (snd tuple) !! 1 )) input)
+
+
+
+
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
-
 --Input for transformationsApply: wc f (first:listOfTuples) text
 rulesApply phrasePairs phrase = fromJust (orElse (transformationsApply "*" reflect phrasePairs phrase) (Just []))
 
