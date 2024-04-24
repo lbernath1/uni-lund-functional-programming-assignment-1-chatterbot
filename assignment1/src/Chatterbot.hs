@@ -33,10 +33,10 @@ stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 {- TO BE WRITTEN -}
 --stateOfMind _ = return id
 
-stateOfMind input = rulesApply (map (\ tuple -> ((fst tuple), (snd tuple) !! 1 )) input)
-
-
-
+stateOfMind input = do
+  r <- randomIO :: IO Float
+  return (rulesApply (map (\ tuple -> ((fst tuple), (pick r (snd tuple)))) input)) 
+ 
 
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
@@ -80,12 +80,10 @@ present :: Phrase -> String
 present = unwords
 
 prepare :: String -> Phrase
-prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|") 
+prepare = reduce . words . map toLower . filter (not . flip elem ".,:;!#%&|") 
 
 rulesCompile :: [(String, [String])] -> BotBrain
-{- TO BE WRITTEN -}
-rulesCompile _ = []
-
+rulesCompile = map (\ tuple -> (prepare (fst tuple), map (\ s -> prepare s) (snd tuple)))
 
 --------------------------------------
 
