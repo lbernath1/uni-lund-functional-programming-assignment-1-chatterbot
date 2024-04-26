@@ -45,7 +45,7 @@ rulesApply phrasePairs phrase = fromJust (orElse (transformationsApply "*" refle
 
 reflect :: Phrase -> Phrase
 
-reflect phrase = map (\ word -> fromJust (orElse (keyToValue word reflections) (Just word))) phrase
+reflect = map (\ word -> fromJust (orElse (keyToValue word reflections) (Just word)))
 
 keyToValue :: Eq a => a -> [(a, b)] -> Maybe b
 keyToValue key [] = Nothing
@@ -147,14 +147,14 @@ singleWildcardMatch (wc:ps) (x:xs) = (if (match wc ps xs) /= Nothing then Just [
 
 
 -- longerWildcardMatch (wc:ps) (x:xs) = Nothing
-longerWildcardMatch (wc:ps) (x:xs) = 
-  (if match wc (wc:ps) xs == Nothing || singleWildcardMatch (wc:ps) (x:xs) /= Nothing 
-    then Nothing
-  else 
-  (if (singleWildcardMatch (wc:ps) xs) /= Nothing 
-    then Just [x, (head xs)]   
-   else Just ( x:(fromJust (longerWildcardMatch (wc:ps) xs))))
-  )
+longerWildcardMatch (wc : ps) (x : xs)
+  | match wc (wc : ps) xs == Nothing
+      || singleWildcardMatch (wc : ps) (x : xs) /= Nothing
+  = Nothing
+  | (singleWildcardMatch (wc : ps) xs) /= Nothing
+  = Just [x, (head xs)]
+  | otherwise
+  = Just (x : (fromJust (longerWildcardMatch (wc : ps) xs)))
       
 
 
