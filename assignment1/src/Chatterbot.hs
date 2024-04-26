@@ -107,8 +107,12 @@ reduce :: Phrase -> Phrase
 reduce = reductionsApply reductions
 
 reductionsApply :: [PhrasePair] -> Phrase -> Phrase
-{- TO BE WRITTEN -}
-reductionsApply _ = id
+reductionsApply listOfPairs input = 
+  if (a == Nothing) 
+    then input 
+  else reductionsApply listOfPairs (fromJust a )
+  where 
+    a = transformationsApply "*" id listOfPairs input
 
 
 -------------------------------------------------------
