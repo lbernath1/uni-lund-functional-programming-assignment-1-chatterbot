@@ -6,6 +6,7 @@ import System.Random
 import Data.Char
 import Data.List
 import Data.Maybe (Maybe(Nothing), fromJust)
+import Data.Bifunctor (second)
 
 chatterbot :: String -> [(String, [String])] -> IO ()
 chatterbot botName botRules = do
@@ -30,14 +31,9 @@ type BotBrain = [(Phrase, [Phrase])]
 --------------------------------------------------------
 
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
-{- TO BE WRITTEN -}
---stateOfMind _ = return id
-
 stateOfMind input = do
   r <- randomIO :: IO Float
-  return (rulesApply (map (\ tuple -> ((fst tuple), (pick r (snd tuple)))) input)) 
- 
-
+  return (rulesApply (map (Data.Bifunctor.second (pick r)) input))
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 --Input for transformationsApply: wc f (first:listOfTuples) text
