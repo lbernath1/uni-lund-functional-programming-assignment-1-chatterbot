@@ -1,3 +1,5 @@
+# Ellen Hedberg el1185he-s, Leon ..?
+
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Redundant bracket" #-}
 module Chatterbot where
@@ -30,14 +32,16 @@ type BotBrain = [(Phrase, [Phrase])]
 
 --------------------------------------------------------
 
+comp12 = (.).(.) -- comp12 f(z) g(x,y) -> f(g(x,y))
+
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 stateOfMind input = do
   r <- randomIO :: IO Float
-  return (rulesApply (map (Data.Bifunctor.second (pick r)) input))
+  (comp12 (return . rulesApply) map) (Data.Bifunctor.second (pick r)) input
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 --Input for transformationsApply: wc f (first:listOfTuples) text
-rulesApply phrasePairs phrase = fromJust (orElse (transformationsApply "*" reflect phrasePairs phrase) (Just []))
+rulesApply phrasePairs phrase = fromJust (flip orElse (Just []) (transformationsApply "*" reflect phrasePairs phrase))
 
 reflect :: Phrase -> Phrase
 
