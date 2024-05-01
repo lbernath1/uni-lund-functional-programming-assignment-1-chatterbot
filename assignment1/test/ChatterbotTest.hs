@@ -44,7 +44,7 @@ module Main where
       match '*' "" "abba" ~?= Nothing,
       match '*' "a" "a" ~?= Just [],
       match '*' "*" "a" ~?= Just "a",
-      match '*' "*" "abba" ~?= Just "abba",
+      match '*' "*" "abba" ~?= Just "abba", 
       match '*' "*X*" "aXb" ~?= Just "a",
       match '*' "*X*" "aaXbb" ~?= Just "aa"
     ]

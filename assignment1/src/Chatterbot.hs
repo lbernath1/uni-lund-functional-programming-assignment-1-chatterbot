@@ -33,15 +33,15 @@ type BotBrain = [(Phrase, [Phrase])]
 --------------------------------------------------------
 
 comp12 = (.).(.) -- comp12 f(z) g(x,y) -> f(g(x,y))
+comp13 = (.).(.).(.)  -- comp13 f(d) g (a,b,c) -> f(g(a,b,c))
 
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 stateOfMind input = do
   r <- randomIO :: IO Float
-  (((.).(.)) (return . rulesApply) map) (Data.Bifunctor.second (pick r)) input --TODO
+  (((.).(.)) (return . rulesApply) map) (Data.Bifunctor.second (pick r)) input --TODO: not yet point free
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
---Input for transformationsApply: wc f (first:listOfTuples) text
-rulesApply phrasePairs phrase = fromJust (flip orElse (Just []) (transformationsApply "*" reflect phrasePairs phrase)) --TODO
+rulesApply = (flip (comp12 fromJust orElse) (Just ([])) .) . transformationsApply "*" reflect 
 
 reflect :: Phrase -> Phrase
 
@@ -102,11 +102,8 @@ reductions = (map.map2) (words, words)
 reduce :: Phrase -> Phrase
 reduce = reductionsApply reductions
 
-reductionsApply :: [PhrasePair] -> Phrase -> Phrase
-reductionsApply listOfPairs input = 
-  maybe input (reductionsApply listOfPairs) a
-  where 
-    a = transformationsApply "*" id listOfPairs input
+reductionsApply :: [PhrasePair] -> Phrase -> Phrase --TODO: not yet point free
+reductionsApply listOfPairs input = maybe input (reductionsApply listOfPairs) (transformationsApply "*" id listOfPairs input) 
 
 
 -------------------------------------------------------
@@ -116,7 +113,7 @@ reductionsApply listOfPairs input =
 -- Replaces a wildcard in a list with the list given as the third argument
 substitute :: Eq a => a -> [a] -> [a] -> [a]
 -- x wildcard, y list to change, z string to insert,
-substitute x y z = concatMap (\ char -> if char /= x then [char] else z) y
+substitute x y z = concatMap (\ char -> if char /= x then [char] else z) y --TODO: not yet point free
 
 
 -- Tries to match two lists. If they match, the result consists of the sublist
@@ -132,12 +129,12 @@ match wildcard (p:ps) (s:ss) =
       then (match wildcard ps ss) 
       else (Nothing)
     )
-        else (orElse (singleWildcardMatch (p:ps) (s:ss)) (longerWildcardMatch (p:ps) (s:ss)))) --TODO
+        else (orElse (singleWildcardMatch (p:ps) (s:ss)) (longerWildcardMatch (p:ps) (s:ss)))) --TODO: not yet point free
 
 
 -- Helper function to match
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
-singleWildcardMatch (wc:ps) (x:xs) = (if Data.Maybe.isJust (match wc ps xs) then Just [x] else Nothing )    
+singleWildcardMatch (wc:ps) (x:xs) = (if Data.Maybe.isJust (match wc ps xs) then Just [x] else Nothing )  --TODO: not yet point free  
 
 
 -- longerWildcardMatch (wc:ps) (x:xs) = Nothing
@@ -148,7 +145,7 @@ longerWildcardMatch (wc : ps) (x : xs)
   | Data.Maybe.isJust (singleWildcardMatch (wc : ps) xs)
   = Just [x, (head xs)]
   | otherwise
-  = Just (x : (fromJust (longerWildcardMatch (wc : ps) xs))) --TODO
+  = Just (x : (fromJust (longerWildcardMatch (wc : ps) xs))) --TODO: not yet point free
       
 
 
@@ -165,15 +162,13 @@ matchTest = match '*' testPattern testString
 matchCheck = matchTest == Just testSubstitutions
 
 
-
 -------------------------------------------------------
 -- Applying patterns
 --------------------------------------------------------
 
 -- Applying a single pattern
 transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
-
-transformationApply wc f text (s1, s2) = if  Data.Maybe.isJust (match wc s1 text) then Just (substitute wc s2 (f (fromJust  (match wc s1 text)))) else Nothing
+transformationApply wc f text (s1, s2) = if  Data.Maybe.isJust (match wc s1 text) then Just (substitute wc s2 (f (fromJust  (match wc s1 text)))) else Nothing --TODO: not yet point free
 
 
 
@@ -181,6 +176,6 @@ transformationApply wc f text (s1, s2) = if  Data.Maybe.isJust (match wc s1 text
 transformationsApply :: Eq a => a -> ([a] -> [a]) -> [([a], [a])] -> [a] -> Maybe [a]
 -- wc, function, listOfTuples, text 
 transformationsApply _ _ [] _ = Nothing
-transformationsApply wc f (first:listOfTuples) text = orElse (transformationApply wc f text first) (transformationsApply wc f listOfTuples text) --TODO
+transformationsApply wc f (first:listOfTuples) text = orElse (transformationApply wc f text first) (transformationsApply wc f listOfTuples text) --TODO: not yet point free
 
 
