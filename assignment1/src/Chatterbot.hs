@@ -37,7 +37,7 @@ comp12 = (.).(.) -- comp12 f(z) g(x,y) -> f(g(x,y))
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 stateOfMind input = do
   r <- randomIO :: IO Float
-  (comp12 (return . rulesApply) map) (Data.Bifunctor.second (pick r)) input --TODO
+  (((.).(.)) (return . rulesApply) map) (Data.Bifunctor.second (pick r)) input --TODO
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 --Input for transformationsApply: wc f (first:listOfTuples) text
