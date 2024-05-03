@@ -27,13 +27,13 @@ newOptAlignments string1 string2 = [("todo", "todo")]
 
 
 
-similarityScore :: String -> String -> Int
-similarityScore string1 string2
+--similarityScore :: String -> String -> Int
+--similarityScore string1 string2 = 0
 
 
 
-score :: Char -> Int
-score(x,'-') = scoreSpace
-score('-',y) = scoreSpace
-score(x,y) = scoreMatch, if x == y
-             scoreMismatch, if x /= y
+--score :: Char -> Int
+--score(x,'-') = scoreSpace
+--score('-',y) = scoreSpace
+--score(x,y) = scoreMatch, if x == y
+--             scoreMismatch, if x /= y
