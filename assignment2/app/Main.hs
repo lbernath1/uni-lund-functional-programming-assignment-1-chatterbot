@@ -9,6 +9,11 @@ someFunc = do
     print "Result of similarityScore: "
     print (similarityScore "hej" "hello")
 
+negDistance :: Int -> Int -> Int
+negDistance i1 i2 = min i1 i2 - max i1 i2
+
 similarityScore :: String -> String -> Int
-similarityScore s1 s2 = if s1 == s2 then length s1 else 5
+similarityScore s1 s2 = negDistance (length s1) (length s2)
+
+
 
