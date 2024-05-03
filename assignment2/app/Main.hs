@@ -8,4 +8,5 @@ someFunc :: IO ()
 someFunc = putStrLn "someFunc"
 
 similarityScore :: String -> String -> Int
+similarityScore s1 s2 = 5
 
