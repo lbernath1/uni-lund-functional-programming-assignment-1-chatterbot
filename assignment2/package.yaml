@@ -46,6 +46,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - assignment2
+    - HUnit
 
 tests:
   assignment2-test:
@@ -57,3 +58,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - assignment2
+    - HUnit

@@ -1,4 +1,5 @@
-module Main (main) where
+-- Ellen Hedberg el1185he-s, Leon Bernáth le1327be-s
+-- 
 
 main :: IO ()
 main = someFunc
