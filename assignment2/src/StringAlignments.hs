@@ -11,7 +11,6 @@ import GHC.Base (maxInt)
 -- import Data.ByteString (length)
 
 
-
 scoreMatch = 0
 scoreMismatch = -1
 scoreSpace = -1
@@ -35,21 +34,6 @@ mcsLength xs ys = mcsLen (length xs) (length ys)
          y = ys!!(j-1)
 
 
-type AlignmentType = (String,String)
-
-maximaBy :: Ord b => (a -> b) -> [a] -> [a]
-maximaBy valueFcn xs = filter (\ x -> valueFcn x >= a  ) xs
-  where
-    a = maximum (map valueFcn xs)
-
-
-
-optAlignments :: String -> String -> [AlignmentType]
-
-
-attachHeads :: a -> a -> [([a],[a])] -> [([a],[a])]
-attachHeads h1 h2 aList = [(h1:xs,h2:ys) | (xs,ys) <- aList]
-
 
 
 similarityScore :: String -> String -> Int
@@ -61,10 +45,10 @@ similarityScore s1 s2 = simScores (length s1) (length s2)
     simsEntry :: Int -> Int -> Int
     simsEntry a 0 = a*scoreSpace
     simsEntry 0 a = a*scoreSpace
-    simsEntry i j = maximum ([
+    simsEntry i j = maximum [
         simsEntry i (j-1) + scoreSpace,
         simsEntry (i-1) j + scoreSpace,
-        if x == y then simsEntry (i-1) (j-1) + scoreMatch else simsEntry (i-1) (j-1) + scoreMismatch])
+        if x == y then simsEntry (i-1) (j-1) + scoreMatch else simsEntry (i-1) (j-1) + scoreMismatch]
       where
          x = s1!!(i-1)
          y = s2!!(j-1)
@@ -72,14 +56,40 @@ similarityScore s1 s2 = simScores (length s1) (length s2)
 
 
 
-todo = 42
+attachHeads :: a -> a -> [([a],[a])] -> [([a],[a])]
+attachHeads h1 h2 aList = [(h1:xs,h2:ys) | (xs,ys) <- aList]
+
+
+maximaBy :: Ord b => (a -> b) -> [a] -> [a]
+maximaBy valueFcn xs = filter (\ x -> valueFcn x >= a  ) xs
+  where
+    a = maximum (map valueFcn xs)
+
+
+
+
+
+type AlignmentType = (String,String)
+optAlignments :: String -> String -> [AlignmentType]
 optAlignments string1 string2 = [("todo", "todo")]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+todo = 42
 outputOptAlignments string1 string2 = putStrLn ("TODO")
 newSimilarityScore string1 string2 = todo
 newOptAlignments string1 string2 = [("todo", "todo")]
-
-
-
 
 
 similarityScoreTest = test [similarityScore "writers" "vintner" ~=? -5]
@@ -88,6 +98,3 @@ optAlignmentsTest = test [sort (optAlignments "writers" "vintner") ~=? sort [("w
 newSimilarityScoreTest = test [newSimilarityScore "writers" "vintner" ~=? -5]
 newOptAlignmentsTest = test [sort (newOptAlignments "writers" "vintner") ~=? sort [("writ-ers", "vintner-"), ("wri-t-ers", "-vintner-"), ("wri-t-ers", "v-intner-")]]
 mcsLengthTest = test [mcsLength [3, 2, 8, 2, 3, 9, 4, 3, 9] [1, 3, 2, 3, 7, 9] ~=? 4] -- [3, 2, 3, 9]
-
-
-
