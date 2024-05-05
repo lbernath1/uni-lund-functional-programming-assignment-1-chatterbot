@@ -8,10 +8,13 @@ import Control.Arrow (Arrow (second))
 import Data.List (maximumBy, sort)
 import Data.Tuple
 import GHC.Base (maxInt)
+-- import Data.ByteString (length)
 
 
 
-
+scoreMatch = 0
+scoreMismatch = -1
+scoreSpace = -1
 
 
 mcsLength :: Eq a => [a] -> [a] -> Int
@@ -43,17 +46,33 @@ maximaBy valueFcn xs = filter (\ x -> valueFcn x >= a  ) xs
 
 optAlignments :: String -> String -> [AlignmentType]
 
-similarityScore :: String -> String -> Int
 
 attachHeads :: a -> a -> [([a],[a])] -> [([a],[a])]
 attachHeads h1 h2 aList = [(h1:xs,h2:ys) | (xs,ys) <- aList]
 
 
 
+similarityScore :: String -> String -> Int
+similarityScore s1 s2 = simScores (length s1) (length s2)
+  where
+    simScores i j = simScoreTable!!i!!j
+    simScoreTable = [[ simsEntry i j | j<-[0..]] | i<-[0..] ]
+
+    simsEntry :: Int -> Int -> Int
+    simsEntry a 0 = a*scoreSpace
+    simsEntry 0 a = a*scoreSpace
+    simsEntry i j = maximum ([
+        simsEntry i (j-1) + scoreSpace,
+        simsEntry (i-1) j + scoreSpace,
+        if x == y then simsEntry (i-1) (j-1) + scoreMatch else simsEntry (i-1) (j-1) + scoreMismatch])
+      where
+         x = s1!!(i-1)
+         y = s2!!(j-1)
+
+
 
 
 todo = 42
-similarityScore string1 string2 = todo
 optAlignments string1 string2 = [("todo", "todo")]
 outputOptAlignments string1 string2 = putStrLn ("TODO")
 newSimilarityScore string1 string2 = todo
