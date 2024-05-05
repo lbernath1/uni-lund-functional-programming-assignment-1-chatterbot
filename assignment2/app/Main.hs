@@ -7,6 +7,6 @@ main = someFunc
 someFunc :: IO ()
 someFunc = putStrLn "someFunc"
 
-similarityScore :: String -> String -> Int
-similarityScore s1 s2 = 5
+-- similarityScore :: String -> String -> Int
+--similarityScore s1 s2 = 5
 

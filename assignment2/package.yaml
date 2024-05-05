@@ -35,6 +35,8 @@ ghc-options:
 
 library:
   source-dirs: src
+  dependencies:
+  - HUnit
 
 executables:
   assignment2-exe:
@@ -50,7 +52,7 @@ executables:
 
 tests:
   assignment2-test:
-    main:                Spec.hs
+    main:                StringAlignmentTests.hs
     source-dirs:         test
     ghc-options:
     - -threaded
