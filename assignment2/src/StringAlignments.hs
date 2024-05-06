@@ -7,9 +7,11 @@ import Test.HUnit
 import Control.Arrow (Arrow (second))
 import Data.List (maximumBy, sort)
 import Data.Tuple
+import Data.Char (toUpper)
 import GHC.Base (maxInt)
 -- import Data.ByteString (length)
 import Data.Bifunctor (bimap)
+-- import Language.Haskell.TH (tupleDataName)
 
 
 scoreMatch = 0
@@ -76,8 +78,8 @@ optAlignments s1 s2 = reverseStrings $ snd $ optAligns (length s1) (length s2)
     optAlignTable = [[ oaEntry i j | j<-[0..]] | i<-[0..] ]
 
     oaEntry :: Int -> Int -> (Int, [AlignmentType])
-    oaEntry i 0 = (i*scoreSpace, [(['-'|z<-[0..i]], take i s2)])
-    oaEntry 0 j = (j*scoreSpace, [(take j s1, ['-'|z<-[0..j]])])
+    oaEntry i 0 = (i*scoreSpace, [(['-'|z<-[1..i]], take i s2)])
+    oaEntry 0 j = (j*scoreSpace, [(take j s1, ['-'|z<-[1..j]])])
 
     oaEntry i j = changeType  (maximaBy fst [
       (fst (oaEntry i (j-1)) + scoreSpace, attachHeads '-' y (snd $ oaEntry i (j-1))),
@@ -97,12 +99,22 @@ reverseStrings :: [AlignmentType] -> [AlignmentType]
 reverseStrings = map (Data.Bifunctor.bimap reverse reverse )
 
 
+outputOptAlignments :: String -> String -> IO()
+outputOptAlignments s1 s2 = printListofAlignments $ optAlignments s1 s2
 
 
+printListofAlignments :: [AlignmentType] -> IO()
+printListofAlignments [] = putStrLn ""
+printListofAlignments (tuple:listofTuples) = do
+  putStrLn $ concatMap (\ c -> toUpper c : " ") (fst tuple)
+  putStrLn $ concatMap (\ c-> toUpper c : " ") (snd tuple) ++ "\n"
+  printListofAlignments listofTuples
 
+
+string1 = "writers"
+string2 = "vintner"
 
 todo = 42
-outputOptAlignments string1 string2 = putStrLn ("TODO")
 newSimilarityScore string1 string2 = todo
 newOptAlignments string1 string2 = [("todo", "todo")]
 
