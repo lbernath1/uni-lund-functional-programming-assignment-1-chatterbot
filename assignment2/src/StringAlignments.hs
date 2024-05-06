@@ -9,6 +9,7 @@ import Data.List (maximumBy, sort)
 import Data.Tuple
 import GHC.Base (maxInt)
 -- import Data.ByteString (length)
+import Data.Bifunctor (bimap)
 
 
 scoreMatch = 0
@@ -66,20 +67,34 @@ maximaBy valueFcn xs = filter (\ x -> valueFcn x >= a  ) xs
     a = maximum (map valueFcn xs)
 
 
-
-
-
+-- s1 is the horizontal, s2 the vertical string
 type AlignmentType = (String,String)
 optAlignments :: String -> String -> [AlignmentType]
-optAlignments string1 string2 = [("todo", "todo")]
+optAlignments s1 s2 = reverseStrings $ snd $ optAligns (length s1) (length s2)
+  where
+    optAligns i j = optAlignTable!!i!!j
+    optAlignTable = [[ oaEntry i j | j<-[0..]] | i<-[0..] ]
+
+    oaEntry :: Int -> Int -> (Int, [AlignmentType])
+    oaEntry i 0 = (i*scoreSpace, [(['-'|z<-[0..i]], take i s2)])
+    oaEntry 0 j = (j*scoreSpace, [(take j s1, ['-'|z<-[0..j]])])
+
+    oaEntry i j = changeType  (maximaBy fst [
+      (fst (oaEntry i (j-1)) + scoreSpace, attachHeads '-' y (snd $ oaEntry i (j-1))),
+      (fst (oaEntry (i-1) j) + scoreSpace, attachHeads x '-' (snd $ oaEntry (i-1) j)),
+      (if x == y then fst  (oaEntry (i-1) (j-1)) + scoreMatch else fst (oaEntry (i-1) (j-1)) + scoreMismatch, attachHeads x y (snd $ oaEntry (i-1) (j-1)))
+      ])
+      where
+         x = s1!!(i-1)
+         y = s2!!(j-1)
 
 
 
+changeType :: [(Int, [AlignmentType])] -> (Int, [AlignmentType])
+changeType listOfTuples = (fst . head $ listOfTuples, concatMap snd listOfTuples )
 
-
-
-
-
+reverseStrings :: [AlignmentType] -> [AlignmentType]
+reverseStrings = map (Data.Bifunctor.bimap reverse reverse )
 
 
 
