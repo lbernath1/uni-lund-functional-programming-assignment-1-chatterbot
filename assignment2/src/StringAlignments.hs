@@ -4,18 +4,15 @@ module StringAlignments where
 
 import Test.HUnit
 
-import Control.Arrow (Arrow (second))
-import Data.List (maximumBy, sort)
-import Data.Tuple
+import Data.List (sort)
 import Data.Char (toUpper)
-import GHC.Base (maxInt)
--- import Data.ByteString (length)
 import Data.Bifunctor (bimap)
--- import Language.Haskell.TH (tupleDataName)
 
-
+scoreMatch :: Int
 scoreMatch = 0
+scoreMismatch :: Int
 scoreMismatch = -1
+scoreSpace :: Int
 scoreSpace = -1
 
 
@@ -83,7 +80,7 @@ maximaBy valueFcn xs = filter (\ x -> valueFcn x >= a  ) xs
     a = maximum (map valueFcn xs)
 
 
--- s1 is the horizontal, s2 the vertical string
+
 type AlignmentType = (String,String)
 optAlignments :: String -> String -> [AlignmentType]
 optAlignments s1 s2 = reverseStrings $ snd $ optAligns (length s1) (length s2)
@@ -92,8 +89,8 @@ optAlignments s1 s2 = reverseStrings $ snd $ optAligns (length s1) (length s2)
     optAlignTable = [[ oaEntry i j | j<-[0..]] | i<-[0..] ]
 
     oaEntry :: Int -> Int -> (Int, [AlignmentType])
-    oaEntry 0 i = (i*scoreSpace, [(['-'|z<-[1..i]], take i s2)])
-    oaEntry j 0 = (j*scoreSpace, [(take j s1, ['-'|z<-[1..j]])])
+    oaEntry 0 i = (i*scoreSpace, [(['-'|_<-[1..i]], take i s2)])
+    oaEntry j 0 = (j*scoreSpace, [(take j s1, ['-'|_<-[1..j]])])
 
     oaEntry i j = changeType  (maximaBy fst [
       (fst (oaEntry i (j-1)) + scoreSpace, attachHeads '-' y (snd $ oaEntry i (j-1))),
@@ -111,8 +108,8 @@ newOptAlignments s1 s2 = reverseStrings $ snd $ optAligns (length s1) (length s2
     optAlignTable = [[ oaEntry i j | j<-[0..]] | i<-[0..] ]
 
     oaEntry :: Int -> Int -> (Int, [AlignmentType])
-    oaEntry 0 i = (i*scoreSpace, [(['-'|z<-[1..i]], take i s2)])
-    oaEntry j 0 = (j*scoreSpace, [(take j s1, ['-'|z<-[1..j]])])
+    oaEntry 0 i = (i*scoreSpace, [(['-'|_<-[1..i]], take i s2)])
+    oaEntry j 0 = (j*scoreSpace, [(take j s1, ['-'|_<-[1..j]])])
 
     oaEntry i j = changeType  (maximaBy fst [
       (fst (optAligns i (j-1)) + scoreSpace, attachHeads '-' y (snd $ optAligns i (j-1))),
@@ -148,13 +145,21 @@ printListofAlignments (tuple:listofTuples) = do
   printListofAlignments listofTuples
 
 
-string1 = "writers"
-string2 = "vintner"
-
-
+-- Credit for the tests goes to Coffee from the Discord Server.
+similarityScoreTest :: Test
 similarityScoreTest = test [similarityScore "writers" "vintner" ~=? -5]
+
+maximaByTest :: Test
 maximaByTest = test [sort (maximaBy length ["cs", "efd", "lth", "it"]) ~=? sort ["efd", "lth"]]
+
+optAlignmentsTest :: Test
 optAlignmentsTest = test [sort (optAlignments "writers" "vintner") ~=? sort [("writ-ers", "vintner-"), ("wri-t-ers", "-vintner-"), ("wri-t-ers", "v-intner-")]]
+
+newSimilarityScoreTest :: Test
 newSimilarityScoreTest = test [newSimilarityScore "writers" "vintner" ~=? -5]
+
+newOptAlignmentsTest :: Test
 newOptAlignmentsTest = test [sort (newOptAlignments "writers" "vintner") ~=? sort [("writ-ers", "vintner-"), ("wri-t-ers", "-vintner-"), ("wri-t-ers", "v-intner-")]]
+
+mcsLengthTest :: Test
 mcsLengthTest = test [mcsLength [3, 2, 8, 2, 3, 9, 4, 3, 9] [1, 3, 2, 3, 7, 9] ~=? 4] -- [3, 2, 3, 9]
