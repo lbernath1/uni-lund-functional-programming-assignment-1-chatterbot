@@ -1,7 +1,8 @@
 module Parser(module CoreParser, T, digit, digitVal, chars, letter, err,
               lit, number, iter, accept, require, token,
               spaces, word, (-#), (#-)) where
-import Prelude hiding (return, fail)
+import Prelude hiding (return, fail, iterate)
+import Data.Maybe (Maybe(Nothing), fromJust, isJust, isNothing)
 import Data.Char
 import CoreParser
 infixl 7 -#, #- 
@@ -14,13 +15,17 @@ err message cs = error (message++" near "++cs++"\n")
 iter :: Parser a -> Parser [a]  
 iter m = m # iter m >-> cons ! return [] 
 
+iterate :: Parser a -> Int -> Parser [a]
+iterate m 0 = return []
+iterate m i = m # iterate m (i-1) >-> cons
+
 cons(a, b) = a:b
 
 (-#) :: Parser a -> Parser b -> Parser b
-m -# n = error "-# not implemented"
+m -# n = m # n >-> snd
 
 (#-) :: Parser a -> Parser b -> Parser a
-m #- n = error "#- not implemented"
+m #- n = m # n >-> fst
 
 
 
@@ -37,13 +42,14 @@ word :: Parser String
 word = token (letter # iter letter >-> cons)
 
 chars :: Int -> Parser String
-chars n =  error "chars not implemented"
+chars = iterate char
 
 accept :: String -> Parser String
 accept w = (token (chars (length w))) ? (==w)
 
+-- TODO Make this cleaner 
 require :: String -> Parser String
-require w  = error "require not implemented"
+require w  = if isJust (accept w) then accept w else error "The following String was not found"
 
 lit :: Char -> Parser Char
 lit c = token char ? (==c)
