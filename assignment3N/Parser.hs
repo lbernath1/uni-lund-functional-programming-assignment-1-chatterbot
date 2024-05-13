@@ -49,7 +49,7 @@ accept w = (token (chars (length w))) ? (==w)
 
 -- TODO Make this cleaner 
 require :: String -> Parser String
-require w  = if isJust (accept w) then accept w else error "The following String was not found"
+require w  = accept w ! error "The following String was not found"
 
 lit :: Char -> Parser Char
 lit c = token char ? (==c)
