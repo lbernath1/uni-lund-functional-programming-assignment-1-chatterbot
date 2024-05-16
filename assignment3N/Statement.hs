@@ -39,12 +39,48 @@ parseStatements = iter parseStatement
 parseStatement = assignment ! skip ! beginends ! ifparser ! whileparser ! readparser ! writeParser
 
 
+first :: (a, b, c) -> a
+first (x, _, _) = x 
+
+second :: (a, b, c) -> b
+second (_, y, _) = y 
+
+third :: (a, b, c) -> c
+third (_, _, z) = z 
+
+
+exec' :: [T] -> Dictionary.T String Integer -> [Integer] -> (Dictionary.T String Integer, [Integer], [Integer])
+exec' [] dict input = (dict, input, [])
+exec' (Assignment varname value : stmnts) dict input = exec' stmnts (Dictionary.insert (varname, (Expr.value value)) dict) input  
+exec' (Skip:stmnts) dict input = exec' stmnts dict input
+exec' (If cond thenStmts elseStmts : stmts) dict input = 
+    if (Expr.value cond dict)>0 
+    then exec' (thenStmts: stmts) dict input
+    else exec' (elseStmts: stmts) dict input
+exec' ((BeginEnds listofStatements) : stmnts) dict input = (first b, second b, third a : third b)
+    where a = exec' listofStatements dict input  
+          b = exec' stmnts (first a)  (second a)
+
 
 exec :: [T] -> Dictionary.T String Integer -> [Integer] -> [Integer]
-exec (If cond thenStmts elseStmts: stmts) dict input = 
-    if (Expr.value cond dict)>0 
-    then exec (thenStmts: stmts) dict input
-    else exec (elseStmts: stmts) dict input
+--exec [] _ _ = []
+--exec (Assignment varname value : stmnts) dict input = exec stmnts (Dictionary.insert (varname, value) dict) input  
+--exec (Skip:stmnts) = exec stmnts
+
+--exec ((BeginEnds listofStatements) : stmnts) dict input = exec listofStatements dict input : exec stmnts dict input   
+
+--exec (If cond thenStmts elseStmts : stmts) dict input = 
+--    if (Expr.value cond dict)>0 
+--    then exec (thenStmts: stmts) dict input
+--    else exec (elseStmts: stmts) dict input
+
+--exec (While cond statement : stmts) dict input =
+--    if (Expr.value cond dict)>0
+--    then exec  (BeginEnds)
+
+exec stmnts dict input = third  $ exec' stmnts dict input
+
+
 
 instance Parse Statement where
   parse = parseStatement

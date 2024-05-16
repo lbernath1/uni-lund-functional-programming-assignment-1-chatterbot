@@ -73,7 +73,7 @@ shw prec (Div t u) = parens (prec>6) (shw 6 t ++ "/" ++ shw 7 u)
 
 value :: Expr -> Dictionary.T String Integer -> Integer
 value (Num n) _ = n
-value (Var v) d = fromMaybe (error "Undefined variable ") (Dictionary.lookup v d)
+value (Var v) d = fromMaybe (error ("Undefined variable "++ v)) (Dictionary.lookup v d)
 value (Add t u) d = value t d + value u d 
 value (Sub t u) d = value t d - value u d 
 value (Mul t u) d = value t d * value u d 
