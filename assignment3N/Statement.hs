@@ -51,36 +51,32 @@ third (_, _, z) = z
 
 exec' :: [T] -> Dictionary.T String Integer -> [Integer] -> (Dictionary.T String Integer, [Integer], [Integer])
 exec' [] dict input = (dict, input, [])
-exec' (Assignment varname valueExpr : stmnts) dict input = exec' stmnts (Dictionary.insert (varname, (Expr.value valueExpr dict)) dict) input  
+exec' (Assignment varname valueExpr : stmts) dict input = exec' stmts (Dictionary.insert (varname, (Expr.value valueExpr dict)) dict) input  
 
-
-exec' (Skip:stmnts) dict input = exec' stmnts dict input
+exec' (Skip:stmts) dict input = exec' stmts dict input
 exec' (If cond thenStmts elseStmts : stmts) dict input = 
     if (Expr.value cond dict)>0 
     then exec' (thenStmts: stmts) dict input
     else exec' (elseStmts: stmts) dict input
-exec' ((BeginEnds listofStatements) : stmnts) dict input = (first b, second b,  (third a) ++ (third b))
+exec' ((BeginEnds listofStatements) : stmts) dict input = (first b, second b,  (third a) ++ (third b))
     where a = exec' listofStatements dict input  
-          b = exec' stmnts (first a)  (second a)
+          b = exec' stmts (first a)  (second a)
+
+exec' (While cond statement : stmts) dict input =
+    if (Expr.value cond dict)>0
+    then exec' (While cond statement : stmts) (first doWhileOnce) (second doWhileOnce)
+    else exec' stmts dict input
+       where doWhileOnce = exec' [statement] dict input 
+
+exec' (Read varname : stmts) dict (val:input) = exec' stmts (Dictionary.insert (varname, val) dict) input
+
+exec' (Write expr : stmnts) dict input = (first a, second a, (Expr.value expr dict): third a)
+    where a = exec' stmnts dict input
+
 
 
 exec :: [T] -> Dictionary.T String Integer -> [Integer] -> [Integer]
---exec [] _ _ = []
---exec (Assignment varname value : stmnts) dict input = exec stmnts (Dictionary.insert (varname, value) dict) input  
---exec (Skip:stmnts) = exec stmnts
-
---exec ((BeginEnds listofStatements) : stmnts) dict input = exec listofStatements dict input : exec stmnts dict input   
-
---exec (If cond thenStmts elseStmts : stmts) dict input = 
---    if (Expr.value cond dict)>0 
---    then exec (thenStmts: stmts) dict input
---    else exec (elseStmts: stmts) dict input
-
---exec (While cond statement : stmts) dict input =
---    if (Expr.value cond dict)>0
---    then exec  (BeginEnds)
-
-exec stmnts dict input = third  $ exec' stmnts dict input
+exec stmts dict input = third  $ exec' stmts dict input
 
 
 
