@@ -65,3 +65,7 @@ number' n = digitVal #> (\ d -> number' (10*n+d))
 number :: Parser Integer
 number = token (digitVal #> number')
 
+
+ 
+notlit :: Char -> Parser Char
+notlit c = token char ? (/=c)

@@ -12,6 +12,9 @@ data Statement =
 type Statements = [Statement]
 
 
+notlit :: Char -> Parser Char
+notlit c = char ? (/=c)
+
 assignment = word #- accept ":=" # Expr.parse #- require ";" >-> buildAss
 buildAss (v, e) = Assignment v e
 
@@ -34,9 +37,10 @@ writeParser = accept "write" -# Expr.parse #- require ";" >-> buildWrite
 buildWrite e = Write e 
 
 
-parseStatements = iter parseStatement
+commentParser = spaces -# accept "--" -# iter (notlit '\n') -# lit '\n' >-> buildSkip
 
-parseStatement = assignment ! skip ! beginends ! ifparser ! whileparser ! readparser ! writeParser
+parseStatement = commentParser ! assignment ! skip ! beginends ! ifparser ! whileparser ! readparser ! writeParser
+parseStatements = iter parseStatement
 
 
 first :: (a, b, c) -> a
