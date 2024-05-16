@@ -36,6 +36,10 @@ buildWrite e = Write e
 
 parseStatements = iter parseStatement
 
+parseStatement = assignment ! skip ! beginends ! ifelse ! whileparser ! readparser ! writeParser
+
+
+
 exec :: [T] -> Dictionary.T String Integer -> [Integer] -> [Integer]
 exec (If cond thenStmts elseStmts: stmts) dict input = 
     if (Expr.value cond dict)>0 
