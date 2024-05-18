@@ -37,9 +37,9 @@ writeParser = accept "write" -# Expr.parse #- require ";" >-> buildWrite
 buildWrite e = Write e 
 
 
-commentParser = spaces -# accept "--" -# iter notnewline -# lit '\n' >-> buildSkip
+--commentParser = spaces -# accept "--" -# iter notnewline -# lit '\n' >-> buildSkip
 
-parseStatement = commentParser ! assignment ! skip ! beginends ! ifparser ! whileparser ! readparser ! writeParser
+parseStatement = assignment ! skip ! beginends ! ifparser ! whileparser ! readparser ! writeParser
 parseStatements = iter parseStatement
 
 
