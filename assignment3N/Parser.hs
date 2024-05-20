@@ -27,10 +27,14 @@ m -# n = m # n >-> snd
 (#-) :: Parser a -> Parser b -> Parser a
 m #- n = m # n >-> fst
 
-
-
 spaces :: Parser String
-spaces =  iter (char ? isSpace)
+spaces = iter (char ? isSpace ! comment)
+
+comment :: Parser Char
+comment = chars 2 ? (=="--") -# iter notnewline -# return ' '
+
+notnewline :: Parser Char
+notnewline = char ? (/= '\n')
 
 token :: Parser a -> Parser a
 token m = m #- spaces
