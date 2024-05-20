@@ -3,9 +3,10 @@ import Parser hiding (T)
 import qualified Statement
 import qualified Dictionary
 import Prelude hiding (return, fail)
-newtype T = Program [Statement]
+newtype T = Program Statement.Statements
 instance Parse T where
-  parse = error "Program.parse not implemented"
-  toString = error "Program.toString not implemented"
+  parse program = (Statement.parse program)
+  toString program = concat (map (\ statement -> toString statement) program)
              
-exec = error "Program.exec not implemented"
+exec program input = Statement.exec program dict input  --make point free-er later
+  where dict = Dictionary.empty

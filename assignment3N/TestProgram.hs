@@ -5,6 +5,7 @@ import Program
 
 p0, p1, p2, p3, p4 :: Program.T
 
+
 p0 = fromString  ("\
 \read k;\
 \read n;\

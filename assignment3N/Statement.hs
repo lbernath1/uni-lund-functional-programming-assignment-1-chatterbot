@@ -1,22 +1,19 @@
-module Statement(T, parse, toString, fromString, exec) where
+
+module Statement(T, parse, toString, fromString, exec, Statement, Statements) where
 import Prelude hiding (return, fail)
 import Parser hiding (T)
 import qualified Dictionary
 import qualified Expr
 type T = Statement
 data Statement =
-    Assignment String Expr.T 
-    | Skip | BeginEnds Statements | If Expr.T Statement Statement | While Expr.T Statement | Read String | Write Expr.T 
+    Assignment String Expr.T| Skip | BeginEnds Statements | If Expr.T Statement Statement | While Expr.T Statement | Read String | Write Expr.T 
     deriving Show
 
 type Statements = [Statement]
 
-
-notnewline :: Parser Char
-notnewline = char ? (/= '\n')
-
 assignment = word #- accept ":=" # Expr.parse #- require ";" >-> buildAss
 buildAss (v, e) = Assignment v e
+
 
 skip = accept "skip" #- require ";" >-> buildSkip
 buildSkip a = Skip
@@ -56,8 +53,6 @@ third (_, _, z) = z
 exec' :: [T] -> Dictionary.T String Integer -> [Integer] -> (Dictionary.T String Integer, [Integer], [Integer])
 exec' [] dict input = (dict, input, [])
 exec' (Assignment varname valueExpr : stmts) dict input = exec' stmts (Dictionary.insert (varname, (Expr.value valueExpr dict)) dict) input  
-
-exec' (Skip:stmts) dict input = exec' stmts dict input
 exec' (If cond thenStmts elseStmts : stmts) dict input = 
     if (Expr.value cond dict)>0 
     then exec' (thenStmts: stmts) dict input
@@ -70,7 +65,7 @@ exec' (While cond statement : stmts) dict input =
     if (Expr.value cond dict)>0
     then exec' (While cond statement : stmts) (first doWhileOnce) (second doWhileOnce)
     else exec' stmts dict input
-       where doWhileOnce = exec' [statement] dict input 
+       where doWhileOnce = exec' [statement] dict input
 
 exec' (Read varname : stmts) dict (val:input) = exec' stmts (Dictionary.insert (varname, val) dict) input
 
@@ -86,6 +81,11 @@ exec stmts dict input = third  $ exec' stmts dict input
 
 instance Parse Statement where
   parse = parseStatement
-  toString = error "Statement.toString not implemented"
-
-
+  toString statement = case statement of
+    Assignment var expr-> var ++ ":=" ++ expr ++ "\n"
+    Skip -> "skip;" ++ "\n"
+    BeginEnds [stmt:stmts] -> "begin;"-- ++ (toString stmt) ++ "end;"
+    If expr stmt1 stmt2 -> "if else..."
+    While expr stmt -> "while loop"
+    Read str -> "read"
+    Write expr -> "write"
