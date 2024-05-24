@@ -82,9 +82,9 @@ exec stmts dict input = third  $ exec' stmts dict input
 instance Parse Statement where
   parse = parseStatement
   toString statement = case statement of
-    Assignment var expr-> var ++ ":=" ++ expr ++ "\n"
+    --Assignment var expr-> var ++ ":=" ++ expr ++ "\n"
     Skip -> "skip;" ++ "\n"
-    BeginEnds [stmt:stmts] -> "begin;"-- ++ (toString stmt) ++ "end;"
+    --BeginEnds [stmt:stmts] -> "begin;"-- ++ (toString stmt) ++ "end;"
     If expr stmt1 stmt2 -> "if else..."
     While expr stmt -> "while loop"
     Read str -> "read"
