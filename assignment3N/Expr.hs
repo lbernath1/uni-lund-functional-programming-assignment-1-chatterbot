@@ -61,7 +61,7 @@ partsPower = num !
          lit '(' -# expr #- lit ')' !
          err "illegal factor"
 
-factor' e = pwrOp # partsPower >-> bldOp e #> factor' ! return e
+factor' e = pwrOp # (factor ! partsPower) >-> bldOp e #> factor' ! return e
 factor =  partsPower  #> factor'
 
 term' e = mulOp # factor >-> bldOp e #> term' ! return e
