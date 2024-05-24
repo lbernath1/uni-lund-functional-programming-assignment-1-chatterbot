@@ -1,4 +1,5 @@
 
+--Ellen Hedberg & Leon Bernáth
 module Statement(T, parse, toString, fromString, exec, Statement, Statements, parseStatements, statementToString, statementsToString) where
 import Prelude hiding (return, fail)
 import Parser hiding (T)
@@ -13,7 +14,6 @@ type Statements = [Statement]
 
 assignment = word #- accept ":=" # Expr.parse #- require ";" >-> buildAss
 buildAss (v, e) = Assignment v e
-
 
 skip = accept "skip" #- require ";" >-> buildSkip
 buildSkip a = Skip
