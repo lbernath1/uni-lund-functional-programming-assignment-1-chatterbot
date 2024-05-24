@@ -1,5 +1,5 @@
 
-module Statement(T, parse, toString, fromString, exec, Statement, Statements) where
+module Statement(T, parse, toString, fromString, exec, Statement, Statements, parseStatements, statementToString, statementsToString) where
 import Prelude hiding (return, fail)
 import Parser hiding (T)
 import qualified Dictionary
@@ -78,14 +78,30 @@ exec :: [T] -> Dictionary.T String Integer -> [Integer] -> [Integer]
 exec stmts dict input = third  $ exec' stmts dict input
 
 
+indentString = "  "
+
+indentf :: Int -> String -> String
+indentf 0 s = s
+indentf n s = indentf (n-1) (indentString++s) 
+
+
+statementToString :: Statement -> Int -> String
+statementToString statement n = case statement of 
+    Assignment var expr -> indentf n $ var ++ ":=" ++ (Expr.toString expr) ++ ";"  ++ "\n"
+    Skip -> indentf n $ "skip;" ++ "\n"
+    BeginEnds stmnts -> (indentf n "begin\n") ++ statementsToString stmnts (n+1)  ++ (indentf n "end\n")
+    If  expr sm1 sm2 -> (indentf n $ "if " ++ (Expr.toString expr) ++ " then\n") ++ statementToString sm1 (n+1)  ++ (indentf n "else\n") ++ statementToString sm2 (n+1) 
+    While expr sm -> (indentf n $ "while " ++ (Expr.toString expr) ++ " do\n") ++ statementToString sm (n+1) 
+    Read var -> indentf n $ "read "++ var ++";\n"
+    Write expr -> indentf n $ "read "++  (Expr.toString expr) ++";\n"
+
+
+statementsToString :: Statements -> Int  -> String
+statementsToString [] _ = ""
+statementsToString (sm:stmnts) n = (statementToString sm n) ++ (statementsToString stmnts n)
+
+
 
 instance Parse Statement where
   parse = parseStatement
-  toString statement = case statement of
-    --Assignment var expr-> var ++ ":=" ++ expr ++ "\n"
-    Skip -> "skip;" ++ "\n"
-    --BeginEnds [stmt:stmts] -> "begin;"-- ++ (toString stmt) ++ "end;"
-    If expr stmt1 stmt2 -> "if else..."
-    While expr stmt -> "while loop"
-    Read str -> "read"
-    Write expr -> "write"
+  toString statement = statementToString statement 0
