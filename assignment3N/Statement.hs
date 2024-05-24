@@ -53,6 +53,7 @@ third (_, _, z) = z
 exec' :: [T] -> Dictionary.T String Integer -> [Integer] -> (Dictionary.T String Integer, [Integer], [Integer])
 exec' [] dict input = (dict, input, [])
 exec' (Assignment varname valueExpr : stmts) dict input = exec' stmts (Dictionary.insert (varname, (Expr.value valueExpr dict)) dict) input  
+exec' (Skip:stmnts) dict input = exec' stmnts dict input
 exec' (If cond thenStmts elseStmts : stmts) dict input = 
     if (Expr.value cond dict)>0 
     then exec' (thenStmts: stmts) dict input
@@ -93,7 +94,7 @@ statementToString statement n = case statement of
     If  expr sm1 sm2 -> (indentf n $ "if " ++ (Expr.toString expr) ++ " then\n") ++ statementToString sm1 (n+1)  ++ (indentf n "else\n") ++ statementToString sm2 (n+1) 
     While expr sm -> (indentf n $ "while " ++ (Expr.toString expr) ++ " do\n") ++ statementToString sm (n+1) 
     Read var -> indentf n $ "read "++ var ++";\n"
-    Write expr -> indentf n $ "read "++  (Expr.toString expr) ++";\n"
+    Write expr -> indentf n $ "write "++  (Expr.toString expr) ++";\n"
 
 
 statementsToString :: Statements -> Int  -> String

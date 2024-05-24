@@ -6,6 +6,8 @@ infixl 7 ?
 infixl 6 #
 infixl 5 >->
 infixl 4 #>
+--infixl 4 <#
+
 
 class Parse a where
     parse :: Parser a
@@ -60,3 +62,10 @@ fail cs = Nothing
     case p cs of
     Nothing -> Nothing
     Just(a, cs') -> k a cs'
+
+
+--(<#) :: Parser a -> (a -> Parser b) -> Parser b 
+--(p <# k) cs = 
+--    case p cs of
+--    Nothing -> Nothing
+--    Just(a, cs') -> k a cs'

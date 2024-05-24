@@ -4,7 +4,7 @@ import qualified Statement
 import qualified Dictionary
 import Prelude hiding (return, fail)
 import Data.Maybe (Maybe(Nothing), fromJust, isJust, isNothing)
-newtype T = Program Statement.Statements
+newtype T = Program Statement.Statements deriving (Show)
 
 
 
