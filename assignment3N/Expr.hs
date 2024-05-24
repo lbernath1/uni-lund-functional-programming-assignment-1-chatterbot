@@ -30,7 +30,7 @@ import qualified Dictionary
 import Data.Maybe (fromMaybe)
 
 data Expr = Num Integer | Var String | Add Expr Expr 
-       | Sub Expr Expr | Mul Expr Expr | Div Expr Expr
+       | Sub Expr Expr | Mul Expr Expr | Div Expr Expr | Pwr Expr Expr
          deriving Show
 
 type T = Expr
@@ -49,13 +49,21 @@ mulOp = lit '*' >-> (\_ -> Mul) !
 addOp = lit '+' >-> (\_ -> Add) !
         lit '-' >-> (\_ -> Sub)
 
+pwrOp = lit '^' >-> (\_ -> Pwr)
+
+
 bldOp e (oper,e') = oper e e'
 
-factor = num !
+
+ 
+partsPower = num !
          var !
          lit '(' -# expr #- lit ')' !
          err "illegal factor"
-             
+
+factor' e = pwrOp # partsPower >-> bldOp e #> factor' ! return e
+factor = partsPower #> factor'
+
 term' e = mulOp # factor >-> bldOp e #> term' ! return e
 term = factor #> term'
        
@@ -71,6 +79,9 @@ shw prec (Add t u) = parens (prec>5) (shw 5 t ++ "+" ++ shw 5 u)
 shw prec (Sub t u) = parens (prec>5) (shw 5 t ++ "-" ++ shw 6 u)
 shw prec (Mul t u) = parens (prec>6) (shw 6 t ++ "*" ++ shw 6 u)
 shw prec (Div t u) = parens (prec>6) (shw 6 t ++ "/" ++ shw 7 u)
+shw prec (Pwr t u) = parens (prec>7) (shw 8 t ++ "^" ++ shw 7 u)
+
+
 
 value :: Expr -> Dictionary.T String Integer -> Integer
 value (Num n) _ = n
@@ -79,6 +90,7 @@ value (Add t u) d = value t d + value u d
 value (Sub t u) d = value t d - value u d 
 value (Mul t u) d = value t d * value u d 
 value (Div t u) d = if value u d == 0 then error "Division by zero" else value t d `div` value u d 
+value (Pwr t u) d = (value t d) ^ (value u d)
 
 
 instance Parse Expr where
