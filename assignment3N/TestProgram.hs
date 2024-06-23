@@ -82,3 +82,18 @@ s4 = "\
 p4 = fromString s4
 
 rp4 = Program.exec p4 [4,4]
+
+
+s5 = "begin read p; while p do begin write p; p := p - 1; end end"
+
+p5 = fromString s5
+
+rp5 = Program.exec p5 [3]
+
+
+
+s6 = "begin read a; read b; write a; write b; end"
+
+p6 = fromString s6
+
+rp6 = Program.exec p6 [2, 4]
