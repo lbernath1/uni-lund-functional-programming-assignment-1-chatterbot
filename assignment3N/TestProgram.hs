@@ -3,7 +3,7 @@ module TestProgram where
 
 import Program
 
-p0, p1, p2, p3, p4 :: Program.T
+p0, p1, p2, p3, p4, p5, p6, p7 :: Program.T
 
 p0 = fromString  ("\
 \read k;\
@@ -93,7 +93,10 @@ rp5 = Program.exec p5 [3]
 
 
 s6 = "begin read a; read b; write a; write b; end"
-
 p6 = fromString s6
-
 rp6 = Program.exec p6 [2, 4]
+
+
+s7 = "read a; read b; write a; write b;"
+p7 = fromString s7
+rp7 = Program.exec p6 [2, 4]

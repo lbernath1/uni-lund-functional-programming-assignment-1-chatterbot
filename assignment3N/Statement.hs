@@ -68,14 +68,14 @@ exec' ((BeginEnds listofStatements) : stmts) dict input output = (first b, secon
 
 exec' (While cond statement : stmts) dict input output =
     if (Expr.value cond dict)>0
-    then exec' (While cond statement : stmts) (first doWhileOnce) (second doWhileOnce) (output ++ (third doWhileOnce))
+    then exec' (While cond statement : stmts) (first doWhileOnce) (second doWhileOnce) (output ++ (reverse (third doWhileOnce)))
     else exec' stmts dict input output
        where doWhileOnce = exec' [statement] dict input []
              
       
 exec' (Read varname : stmts) dict (val:input) output = exec' stmts (Dictionary.insert (varname, val) dict) input output
 
-exec' (Write expr : stmnts) dict input output = (first a, second a, (Expr.value expr dict): third a )
+exec' (Write expr : stmnts) dict input output = (first a, second a, third a ++[(Expr.value expr dict)] )
     where a = exec' stmnts dict input output
 
 
