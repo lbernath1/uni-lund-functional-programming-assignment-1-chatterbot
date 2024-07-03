@@ -60,9 +60,9 @@ p2 = fromString (toString p0)
 
 p3 = fromString (toString p1)
 
-rp0 = Program.exec p0 [3,16] ;;Expected output: [3,6,9,12,15]
+rp0 = Program.exec p0 [3,16] --Expected output: [3,6,9,12,15]
 
-rp1 = Program.exec p1 [1024, 2] ;;Expected output: [0,0,0,0,0,0,0,0,0,0,1,10000000000]
+rp1 = Program.exec p1 [1024, 2] --Expected output: [0,0,0,0,0,0,0,0,0,0,1,10000000000]
 
 s4 = "\
 \read a;\
@@ -81,22 +81,22 @@ s4 = "\
 
 p4 = fromString s4
 
-rp4 = Program.exec p4 [4,4] ;;Expected output: [64,16,27,8,8,4,1,2,0]
+rp4 = Program.exec p4 [4,4] --Expected output: [64,16,27,8,8,4,1,2,0]
 
 
 s5 = "begin read p; while p do begin write p; p := p - 1; end end"
 
 p5 = fromString s5
 
-rp5 = Program.exec p5 [3] ;; Expected output: [3,2,1]
+rp5 = Program.exec p5 [3] -- Expected output: [3,2,1]
 
 
 
 s6 = "begin read a; read b; write a; write b; end"
 p6 = fromString s6
-rp6 = Program.exec p6 [2, 4] ;; Expected output: [2, 4]. Current result!!: [4, 2]
+rp6 = Program.exec p6 [2, 4] -- Expected output: [2, 4]. Current result!!: [4, 2]
 
 
 s7 = "read a; read b; write a; write b;"
 p7 = fromString s7
-rp7 = Program.exec p6 [2, 4] ;; Expected output: [2, 4]. Current result!!: [4, 2]
+rp7 = Program.exec p6 [2, 4] -- Expected output: [2, 4]. Current result!!: [4, 2]
